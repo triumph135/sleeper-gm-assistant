@@ -1,0 +1,703 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fantasy GM — Newsletter</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;900&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+<style>
+:root{--bg:#0a0c10;--sf:#12151c;--sf2:#1a1e28;--bd:#252a38;--ac:#00d4ff;--gn:#00e676;--rd:#ff4444;--yw:#ffd600;--or:#ff6b35;--tx:#e8eaf0;--mt:#6b7280;--fd:'Barlow Condensed',sans-serif;--fb:'Barlow',sans-serif}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--tx);font-family:var(--fb);min-height:100vh}
+body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(0,212,255,.025) 1px,transparent 1px),linear-gradient(90deg,rgba(0,212,255,.025) 1px,transparent 1px);background-size:40px 40px;pointer-events:none;z-index:0}
+.app{position:relative;z-index:1;max-width:1000px;margin:0 auto;padding:20px 16px}
+header{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;padding-bottom:14px;border-bottom:1px solid var(--bd);flex-wrap:wrap;gap:10px}
+.logo{font-family:var(--fd);font-size:26px;font-weight:900;letter-spacing:.05em;text-transform:uppercase;color:var(--ac);text-shadow:0 0 16px rgba(0,212,255,.3)}
+.logo span{color:var(--tx)}
+.back-link{font-family:var(--fd);font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--mt);text-decoration:none;border:1px solid var(--bd);border-radius:5px;padding:5px 12px;transition:all .18s}
+.back-link:hover{color:var(--ac);border-color:var(--ac)}
+
+/* Setup panel */
+.setup-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px}
+@media(max-width:640px){.setup-grid{grid-template-columns:1fr}}
+.card{background:var(--sf);border:1px solid var(--bd);border-radius:10px;padding:18px}
+.card-title{font-family:var(--fd);font-size:13px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ac);margin-bottom:14px;padding-bottom:8px;border-bottom:1px solid var(--bd)}
+.fld{margin-bottom:12px}
+.fld label{display:block;font-family:var(--fd);font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--mt);margin-bottom:5px}
+.fld input,.fld select,.fld textarea{width:100%;background:var(--sf2);border:1px solid var(--bd);border-radius:5px;color:var(--tx);font-family:var(--fb);font-size:13px;padding:8px 11px;transition:border-color .18s}
+.fld input:focus,.fld select:focus,.fld textarea:focus{outline:none;border-color:rgba(0,212,255,.4)}
+.fld input::placeholder,.fld textarea::placeholder{color:var(--mt)}
+.fld select option{background:var(--sf2)}
+.fld textarea{resize:vertical;min-height:80px;line-height:1.5}
+.hint{font-size:11px;color:var(--mt);margin-top:4px}
+
+/* Recipient list */
+.recipient-row{display:flex;gap:8px;margin-bottom:8px;align-items:center}
+.recipient-row input{flex:1}
+.recipient-row input:first-child{flex:1.2}
+.btn-icon-sm{background:none;border:1px solid var(--bd);border-radius:5px;color:var(--mt);width:30px;height:30px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;transition:all .18s}
+.btn-icon-sm:hover{border-color:var(--rd);color:var(--rd)}
+.btn-icon-sm.add:hover{border-color:var(--gn);color:var(--gn)}
+
+/* Tone slider */
+.tone-track{position:relative;margin:8px 0 4px}
+.tone-track input[type=range]{width:100%;accent-color:var(--ac)}
+.tone-labels{display:flex;justify-content:space-between;font-size:10px;color:var(--mt);font-family:var(--fd);letter-spacing:.06em;text-transform:uppercase}
+
+/* Buttons */
+.btn{font-family:var(--fd);font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;border:none;border-radius:5px;padding:9px 20px;cursor:pointer;transition:all .18s;white-space:nowrap}
+.btn-p{background:var(--ac);color:#000}.btn-p:hover{background:#33ddff;box-shadow:0 0 10px rgba(0,212,255,.3)}
+.btn-s{background:var(--sf2);color:var(--tx);border:1px solid var(--bd)}.btn-s:hover{border-color:rgba(0,212,255,.26);color:var(--ac)}
+.btn-gn{background:var(--gn);color:#000}.btn-gn:hover{background:#33ffaa;box-shadow:0 0 10px rgba(0,230,118,.3)}
+.btn-rd{background:var(--rd);color:#fff}.btn-rd:hover{box-shadow:0 0 10px rgba(255,68,68,.3)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.brow{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap;align-items:center}
+
+/* Status / loading */
+.status-bar{background:var(--sf2);border:1px solid var(--bd);border-radius:7px;padding:10px 14px;font-size:13px;color:var(--mt);display:flex;align-items:center;gap:8px;margin-bottom:16px}
+.adot{width:7px;height:7px;background:var(--ac);border-radius:50%;box-shadow:0 0 6px var(--ac);animation:pulse 2s ease-in-out infinite;flex-shrink:0}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.45;transform:scale(.8)}}
+.status-bar.ok{border-color:rgba(0,230,118,.3);background:rgba(0,230,118,.06)}
+.status-bar.ok .adot{background:var(--gn);box-shadow:0 0 6px var(--gn)}
+.status-bar.err{border-color:rgba(255,68,68,.3);background:rgba(255,68,68,.06)}
+.status-bar.err .adot{background:var(--rd);box-shadow:0 0 6px var(--rd)}
+
+/* Preview area */
+#preview-section{display:none}
+.preview-toolbar{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:12px}
+.preview-toolbar-title{font-family:var(--fd);font-size:16px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--tx)}
+.preview-frame-wrap{background:#fff;border-radius:10px;overflow:hidden;border:1px solid var(--bd)}
+#preview-frame{width:100%;min-height:600px;border:none;display:block}
+.edit-area{background:var(--sf2);border:1px solid var(--bd);border-radius:7px;padding:14px;margin-top:12px;display:none}
+.edit-area textarea{width:100%;background:var(--sf);border:1px solid var(--bd);border-radius:5px;color:var(--tx);font-family:var(--fb);font-size:12px;padding:10px;min-height:400px;resize:vertical;line-height:1.5}
+.edit-area textarea:focus{outline:none;border-color:rgba(0,212,255,.4)}
+
+/* Send progress */
+.send-progress{background:var(--sf);border:1px solid var(--bd);border-radius:8px;padding:16px;margin-top:14px;display:none}
+.progress-row{display:flex;align-items:center;gap:10px;padding:6px 0;font-size:13px;border-bottom:1px solid var(--bd)}
+.progress-row:last-child{border-bottom:none}
+.progress-icon{width:18px;text-align:center;font-size:14px;flex-shrink:0}
+.sending-spinner{display:inline-block;width:14px;height:14px;border:2px solid var(--bd);border-top-color:var(--ac);border-radius:50%;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* Data preview cards */
+.data-summary{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:8px;margin-bottom:14px}
+.data-card{background:var(--sf2);border:1px solid var(--bd);border-radius:6px;padding:10px 12px}
+.data-card-val{font-family:var(--fd);font-size:22px;font-weight:700;color:var(--ac);line-height:1}
+.data-card-lbl{font-size:10px;color:var(--mt);text-transform:uppercase;letter-spacing:.08em;font-family:var(--fd);margin-top:2px}
+
+.divider{border:none;border-top:1px solid var(--bd);margin:20px 0}
+</style>
+</head>
+<body>
+<div class="app">
+<header>
+  <div class="logo">Fantasy <span>GM</span> — Newsletter</div>
+  <a href="index.html" class="back-link">← Back to GM Tool</a>
+</header>
+
+<!-- Step 1: Config -->
+<div id="step-config">
+  <div class="setup-grid">
+    <!-- Left: League + API settings -->
+    <div class="card">
+      <div class="card-title">League Settings</div>
+      <div class="fld"><label>Sleeper Username</label><input id="cfg-u" placeholder="Your Sleeper username"></div>
+      <div class="fld"><label>League ID</label><input id="cfg-l" placeholder="Your league ID"><div class="hint">Found in the URL when viewing your league on sleeper.com</div></div>
+      <div class="fld"><label>Season</label><input id="cfg-s" placeholder="2025"></div>
+      <div class="fld"><label>Anthropic API Key</label><input id="cfg-k" type="password" placeholder="sk-ant-…"></div>
+      <div class="fld">
+        <label>Week to Recap</label>
+        <select id="cfg-week">
+          <option value="auto">Auto-detect (last completed week)</option>
+        </select>
+        <div class="hint">Which week's results to write about</div>
+      </div>
+    </div>
+
+    <!-- Right: Newsletter settings -->
+    <div class="card">
+      <div class="card-title">Newsletter Settings</div>
+      <div class="fld"><label>Newsletter Name</label><input id="nl-name" placeholder="e.g. The Gridiron Gazette" value="The Gridiron Gazette"></div>
+      <div class="fld"><label>League Name (for subject line)</label><input id="nl-league-name" placeholder="e.g. The Lads League"></div>
+      <div class="fld">
+        <label>Tone — Week <span id="tone-val">5</span>/10</label>
+        <div class="tone-track">
+          <input type="range" id="nl-tone" min="1" max="10" value="5" oninput="document.getElementById('tone-val').textContent=this.value">
+        </div>
+        <div class="tone-labels"><span>Gentle ribbing</span><span>Absolutely merciless</span></div>
+      </div>
+      <div class="fld">
+        <label>Special Notes for this Week <span style="color:var(--mt);font-size:9px">(optional)</span></label>
+        <textarea id="nl-notes" placeholder="e.g. 'Jake talked trash all week and lost by 80 points', 'First place has been the same team all season', anything extra you want included…"></textarea>
+      </div>
+    </div>
+  </div>
+
+  <!-- EmailJS settings -->
+  <div class="card" style="margin-bottom:16px">
+    <div class="card-title">EmailJS Settings <span style="color:var(--mt);font-size:10px;font-weight:400;letter-spacing:0;text-transform:none">— sign up free at emailjs.com</span></div>
+    <div class="setup-grid">
+      <div class="fld"><label>EmailJS Public Key</label><input id="ej-pubkey" placeholder="Your EmailJS public key"></div>
+      <div class="fld"><label>Service ID</label><input id="ej-service" placeholder="e.g. service_abc123"></div>
+      <div class="fld"><label>Template ID</label><input id="ej-template" placeholder="e.g. template_xyz789"><div class="hint">Template must have {{to_email}}, {{subject}}, {{html_content}} variables</div></div>
+      <div class="fld"><label>From Name</label><input id="ej-from" placeholder="e.g. Fantasy Commissioner" value="Fantasy Commissioner"></div>
+    </div>
+    <details style="margin-top:10px">
+      <summary style="font-size:12px;color:var(--mt);cursor:pointer;user-select:none">How to set up EmailJS →</summary>
+      <div style="font-size:12px;color:var(--mt);line-height:1.7;margin-top:8px;padding:10px;background:var(--sf2);border-radius:5px">
+        1. Sign up at <strong style="color:var(--tx)">emailjs.com</strong> (free tier: 200 emails/month)<br>
+        2. Add an Email Service (Gmail, Outlook, etc.) — note the <strong style="color:var(--tx)">Service ID</strong><br>
+        3. Create an Email Template with these variables: <code style="color:var(--ac)">{{to_email}}</code>, <code style="color:var(--ac)">{{subject}}</code>, <code style="color:var(--ac)">{{html_content}}</code>, <code style="color:var(--ac)">{{from_name}}</code> — note the <strong style="color:var(--tx)">Template ID</strong><br>
+        4. Go to Account → API Keys — copy your <strong style="color:var(--tx)">Public Key</strong><br>
+        5. In the template editor, set the body to use <code style="color:var(--ac)">{{html_content}}</code> and enable HTML mode
+      </div>
+    </details>
+  </div>
+
+  <!-- Recipients -->
+  <div class="card" style="margin-bottom:16px">
+    <div class="card-title">Recipients</div>
+    <div id="recipients-list">
+      <div class="recipient-row">
+        <input placeholder="Manager name (e.g. Jake)" class="r-name">
+        <input placeholder="Email address" type="email" class="r-email">
+        <button class="btn-icon-sm" onclick="removeRecipient(this)" title="Remove">✕</button>
+      </div>
+    </div>
+    <div class="brow" style="margin-top:10px">
+      <button class="btn btn-s" onclick="addRecipient()">+ Add Recipient</button>
+      <button class="btn btn-s" onclick="importFromSleeper()">Import from Sleeper</button>
+    </div>
+    <div class="hint" style="margin-top:8px">Import from Sleeper pulls display names from your league (you'll still need to add emails manually)</div>
+  </div>
+
+  <div class="brow">
+    <button class="btn btn-p" onclick="fetchDataAndGenerate()">Fetch League Data & Generate Newsletter</button>
+    <button class="btn btn-s" onclick="saveCfg()">Save Settings</button>
+  </div>
+</div>
+
+<hr class="divider">
+
+<!-- Status bar -->
+<div id="status-bar" class="status-bar" style="display:none">
+  <div class="adot"></div>
+  <div id="status-msg">Loading…</div>
+</div>
+
+<!-- Data summary -->
+<div id="data-summary" style="display:none">
+  <div class="data-summary">
+    <div class="data-card"><div class="data-card-val" id="ds-matchups">–</div><div class="data-card-lbl">Matchups</div></div>
+    <div class="data-card"><div class="data-card-val" id="ds-trades">–</div><div class="data-card-lbl">Trades</div></div>
+    <div class="data-card"><div class="data-card-val" id="ds-waivers">–</div><div class="data-card-lbl">Waiver Pickups</div></div>
+    <div class="data-card"><div class="data-card-val" id="ds-week">–</div><div class="data-card-lbl">Week Recapped</div></div>
+  </div>
+</div>
+
+<!-- Preview section -->
+<div id="preview-section">
+  <div class="preview-toolbar">
+    <div class="preview-toolbar-title">Newsletter Preview</div>
+    <div class="brow" style="margin-top:0">
+      <button class="btn btn-s" onclick="toggleEdit()">✏ Edit HTML</button>
+      <button class="btn btn-s" onclick="regenerate()">↺ Regenerate</button>
+      <button class="btn btn-gn" onclick="startSend()">Send to All Recipients</button>
+    </div>
+  </div>
+
+  <div class="preview-frame-wrap">
+    <iframe id="preview-frame" title="Newsletter Preview"></iframe>
+  </div>
+
+  <div class="edit-area" id="edit-area">
+    <div style="font-family:var(--fd);font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--mt);margin-bottom:8px">Edit HTML — changes reflect in preview</div>
+    <textarea id="html-editor" oninput="updatePreview(this.value)"></textarea>
+  </div>
+
+  <!-- Send progress -->
+  <div class="send-progress" id="send-progress">
+    <div style="font-family:var(--fd);font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--mt);margin-bottom:10px">Sending…</div>
+    <div id="send-rows"></div>
+  </div>
+</div>
+
+</div><!-- .app -->
+<script>
+const SL = 'https://api.sleeper.app/v1';
+const ANTHROPIC_URL = 'https://api.anthropic.com/v1/messages';
+const WEB_SEARCH_TOOL = { type:'web_search_20250305', name:'web_search' };
+const STORE_KEY = 'fgm_newsletter_cfg';
+
+let D = {};
+let generatedHTML = '';
+
+// ── CONFIG ────────────────────────────────────────────────────────────────────
+function loadCfg() {
+  try {
+    const s = localStorage.getItem(STORE_KEY);
+    if (!s) return;
+    const cfg = JSON.parse(s);
+    document.getElementById('cfg-u').value = cfg.u||'';
+    document.getElementById('cfg-l').value = cfg.l||'';
+    document.getElementById('cfg-s').value = cfg.s||String(new Date().getFullYear());
+    document.getElementById('cfg-k').value = cfg.k||'';
+    document.getElementById('nl-name').value = cfg.nlName||'The Gridiron Gazette';
+    document.getElementById('nl-league-name').value = cfg.nlLeague||'';
+    document.getElementById('nl-tone').value = cfg.tone||5;
+    document.getElementById('tone-val').textContent = cfg.tone||5;
+    document.getElementById('ej-pubkey').value = cfg.ejPub||'';
+    document.getElementById('ej-service').value = cfg.ejSvc||'';
+    document.getElementById('ej-template').value = cfg.ejTpl||'';
+    document.getElementById('ej-from').value = cfg.ejFrom||'Fantasy Commissioner';
+    if (cfg.recipients && cfg.recipients.length) {
+      const list = document.getElementById('recipients-list');
+      list.innerHTML = '';
+      cfg.recipients.forEach(r => addRecipient(r.name, r.email));
+    }
+  } catch(e){}
+}
+
+function saveCfg() {
+  const cfg = {
+    u: v('cfg-u'), l: v('cfg-l'), s: v('cfg-s')||String(new Date().getFullYear()),
+    k: v('cfg-k'), nlName: v('nl-name'), nlLeague: v('nl-league-name'),
+    tone: document.getElementById('nl-tone').value,
+    ejPub: v('ej-pubkey'), ejSvc: v('ej-service'), ejTpl: v('ej-template'), ejFrom: v('ej-from'),
+    recipients: getRecipients()
+  };
+  try { localStorage.setItem(STORE_KEY, JSON.stringify(cfg)); } catch(e){}
+  setStatus('Settings saved!', 'ok');
+}
+
+const v = id => document.getElementById(id)?.value?.trim()||'';
+const apiHeaders = () => {
+  const h = {'Content-Type':'application/json'};
+  const k = v('cfg-k');
+  if (k) { h['x-api-key']=k; h['anthropic-version']='2023-06-01'; h['anthropic-dangerous-direct-browser-access']='true'; }
+  return h;
+};
+
+// ── RECIPIENTS ────────────────────────────────────────────────────────────────
+function addRecipient(name='', email='') {
+  const list = document.getElementById('recipients-list');
+  const row = document.createElement('div');
+  row.className = 'recipient-row';
+  row.innerHTML = `<input placeholder="Manager name" class="r-name" value="${name}"><input placeholder="Email address" type="email" class="r-email" value="${email}"><button class="btn-icon-sm" onclick="removeRecipient(this)" title="Remove">✕</button>`;
+  list.appendChild(row);
+}
+
+function removeRecipient(btn) {
+  const rows = document.querySelectorAll('.recipient-row');
+  if (rows.length <= 1) { btn.closest('.recipient-row').querySelectorAll('input').forEach(i=>i.value=''); return; }
+  btn.closest('.recipient-row').remove();
+}
+
+function getRecipients() {
+  return [...document.querySelectorAll('.recipient-row')].map(row => ({
+    name: row.querySelector('.r-name')?.value?.trim()||'',
+    email: row.querySelector('.r-email')?.value?.trim()||''
+  })).filter(r => r.email);
+}
+
+async function importFromSleeper() {
+  const u = v('cfg-u'), l = v('cfg-l'), s = v('cfg-s')||String(new Date().getFullYear());
+  if (!u||!l) { alert('Enter your Sleeper username and league ID first.'); return; }
+  setStatus('Fetching league members from Sleeper…');
+  try {
+    const user = await sGet('/user/'+u);
+    const users = await sGet('/league/'+l+'/users');
+    const list = document.getElementById('recipients-list');
+    list.innerHTML = '';
+    users.forEach(usr => {
+      const name = usr.metadata?.team_name || usr.display_name || usr.username || 'Manager';
+      addRecipient(name, '');
+    });
+    setStatus(`Imported ${users.length} managers — add their email addresses below.`, 'ok');
+  } catch(e) { setStatus('Error: '+e.message, 'err'); }
+}
+
+// ── STATUS ────────────────────────────────────────────────────────────────────
+function setStatus(msg, type='') {
+  const bar = document.getElementById('status-bar');
+  bar.style.display = 'flex';
+  bar.className = 'status-bar'+(type?' '+type:'');
+  document.getElementById('status-msg').textContent = msg;
+}
+
+// ── SLEEPER API ───────────────────────────────────────────────────────────────
+async function sGet(path) {
+  const r = await fetch(SL+path);
+  if (!r.ok) throw new Error('Sleeper '+r.status+' on '+path);
+  return r.json();
+}
+
+// ── FETCH DATA & GENERATE ─────────────────────────────────────────────────────
+async function fetchDataAndGenerate() {
+  const u=v('cfg-u'), l=v('cfg-l'), s=v('cfg-s')||String(new Date().getFullYear()), k=v('cfg-k');
+  if (!u||!l) { alert('Enter your Sleeper username and league ID.'); return; }
+  if (!k) { alert('Enter your Anthropic API key.'); return; }
+
+  saveCfg();
+  setStatus('Fetching league data from Sleeper…');
+  document.getElementById('data-summary').style.display = 'none';
+  document.getElementById('preview-section').style.display = 'none';
+
+  try {
+    // Fetch all core data in parallel
+    setStatus('Loading league, rosters, and users…');
+    const [league, rosters, users] = await Promise.all([
+      sGet('/league/'+l),
+      sGet('/league/'+l+'/rosters'),
+      sGet('/league/'+l+'/users')
+    ]);
+
+    const currentWeek = league.settings?.leg || 1;
+    const weekSel = document.getElementById('cfg-week');
+
+    // Populate week selector
+    weekSel.innerHTML = '<option value="auto">Auto (Week '+(currentWeek-1)+')</option>';
+    for (let w = currentWeek-1; w >= 1; w--) {
+      weekSel.innerHTML += `<option value="${w}">Week ${w}</option>`;
+    }
+
+    const recapWeek = weekSel.value === 'auto' ? Math.max(currentWeek-1, 1) : parseInt(weekSel.value);
+
+    setStatus('Loading Week '+recapWeek+' matchups and transactions…');
+    const [matchups, transactions] = await Promise.all([
+      sGet('/league/'+l+'/matchups/'+recapWeek),
+      sGet('/league/'+l+'/transactions/'+recapWeek)
+    ]);
+
+    // Load next week matchups for "looking ahead"
+    let nextMatchups = [];
+    try { nextMatchups = await sGet('/league/'+l+'/matchups/'+(recapWeek+1)); } catch(e){}
+
+    D = { league, rosters, users, matchups, transactions, nextMatchups, recapWeek, currentWeek, season: s };
+
+    // Build user/roster maps
+    D.userMap = {};
+    users.forEach(u => { D.userMap[u.user_id] = u; });
+    D.rosterMap = {};
+    rosters.forEach(r => { D.rosterMap[r.roster_id] = r; });
+
+    // Summarize data
+    const trades = transactions.filter(t=>t.type==='trade'&&t.status==='complete');
+    const waivers = transactions.filter(t=>(t.type==='waiver'||t.type==='free_agent')&&t.status==='complete');
+
+    document.getElementById('ds-matchups').textContent = matchups.length/2;
+    document.getElementById('ds-trades').textContent = trades.length;
+    document.getElementById('ds-waivers').textContent = waivers.length;
+    document.getElementById('ds-week').textContent = 'Wk '+recapWeek;
+    document.getElementById('data-summary').style.display = 'block';
+
+    setStatus('Generating newsletter with AI + web search…');
+    await generateNewsletter();
+
+  } catch(e) {
+    setStatus('Error: '+e.message, 'err');
+    console.error(e);
+  }
+}
+
+// ── BUILD CONTEXT FOR AI ──────────────────────────────────────────────────────
+function buildNewsletterContext() {
+  const { league, rosters, users, matchups, transactions, nextMatchups, recapWeek, season } = D;
+  const userMap = D.userMap, rosterMap = D.rosterMap;
+
+  const getTeamName = (rosterId) => {
+    const r = rosterMap[rosterId];
+    if (!r) return `Team ${rosterId}`;
+    const u = userMap[r.owner_id];
+    return u?.metadata?.team_name || u?.display_name || u?.username || `Team ${rosterId}`;
+  };
+
+  const getRecord = (rosterId) => {
+    const r = rosterMap[rosterId];
+    if (!r) return '?-?';
+    return `${r.settings?.wins||0}-${r.settings?.losses||0}`;
+  };
+
+  const getPts = (rosterId) => {
+    const r = rosterMap[rosterId];
+    return ((r?.settings?.fpts||0)+(r?.settings?.fpts_decimal||0)/100).toFixed(2);
+  };
+
+  // Pair up matchups
+  const matchupPairs = {};
+  matchups.forEach(m => {
+    if (!matchupPairs[m.matchup_id]) matchupPairs[m.matchup_id] = [];
+    matchupPairs[m.matchup_id].push(m);
+  });
+
+  const results = Object.values(matchupPairs).map(pair => {
+    if (pair.length < 2) return null;
+    const [a, b] = pair;
+    const aName = getTeamName(a.roster_id), bName = getTeamName(b.roster_id);
+    const aRec = getRecord(a.roster_id), bRec = getRecord(b.roster_id);
+    const winner = a.points > b.points ? aName : bName;
+    const loser  = a.points > b.points ? bName : aName;
+    const winPts = Math.max(a.points, b.points);
+    const losPts = Math.min(a.points, b.points);
+    const margin = (winPts - losPts).toFixed(2);
+    return `${winner} (${a.points>b.points?aRec:bRec}) def. ${loser} (${a.points>b.points?bRec:aRec}) | ${winPts.toFixed(2)}-${losPts.toFixed(2)} | margin: ${margin} pts`;
+  }).filter(Boolean);
+
+  // Trades
+  const trades = transactions.filter(t=>t.type==='trade'&&t.status==='complete').map(t=>{
+    const sides = (t.roster_ids||[]).map(rid=>{
+      const teamName = getTeamName(rid);
+      const gives = Object.entries(t.drops||{}).filter(([,r])=>r===rid).map(([pid])=>`Player#${pid}`);
+      const picks = (t.draft_picks||[]).filter(p=>p.previous_owner_id===rid).map(p=>`${p.season} Rd${p.round} pick`);
+      return `${teamName} gives: ${[...gives,...picks].join(', ')||'nothing'}`;
+    });
+    return sides.join(' | ');
+  });
+
+  // Waivers
+  const waivers = transactions.filter(t=>(t.type==='waiver'||t.type==='free_agent')&&t.status==='complete').map(t=>{
+    const teamName = getTeamName((t.roster_ids||[])[0]);
+    const adds = Object.keys(t.adds||{}).map(pid=>`Player#${pid}`);
+    const drops = Object.keys(t.drops||{}).map(pid=>`Player#${pid}`);
+    return `${teamName}: +${adds.join(',')||'none'} -${drops.join(',')||'none'}`;
+  });
+
+  // Standings
+  const sorted = [...rosters].sort((a,b)=>{
+    const d=(b.settings?.wins||0)-(a.settings?.wins||0);
+    return d||((b.settings?.fpts||0)-(a.settings?.fpts||0));
+  });
+  const standings = sorted.map((r,i)=>`${i+1}. ${getTeamName(r.roster_id)} ${getRecord(r.roster_id)} (${getPts(r.roster_id)} pts)`).join('\n');
+
+  // Next week matchups
+  const nextPairs = {};
+  nextMatchups.forEach(m=>{ if(!nextPairs[m.matchup_id]) nextPairs[m.matchup_id]=[]; nextPairs[m.matchup_id].push(m); });
+  const upcoming = Object.values(nextPairs).map(pair=>{
+    if(pair.length<2) return null;
+    return `${getTeamName(pair[0].roster_id)} (${getRecord(pair[0].roster_id)}) vs ${getTeamName(pair[1].roster_id)} (${getRecord(pair[1].roster_id)})`;
+  }).filter(Boolean);
+
+  const tone = document.getElementById('nl-tone').value;
+  const toneDesc = tone<=3?'gently sarcastic and lighthearted':tone<=6?'funny and playful with some roasting':tone<=8?'pretty savage, no mercy':'absolutely ruthless and merciless, roast everyone equally';
+  const notes = v('nl-notes');
+
+  return `You are writing a fantasy football league newsletter for Week ${recapWeek} of the ${season} NFL season.
+League: ${league.name||'Fantasy League'} | ${rosters.length} teams | Season ${season}
+
+TONE: ${toneDesc}. Be genuinely funny — specific jokes about specific results, not generic. Give nicknames, reference the actual scores and margins. Make it feel like it was written by a knowledgeable friend who is also a comedian.
+
+WEEK ${recapWeek} MATCHUP RESULTS:
+${results.join('\n')}
+
+WEEK ${recapWeek} TRADES:
+${trades.length ? trades.join('\n') : 'No trades this week'}
+
+WEEK ${recapWeek} WAIVER/FA PICKUPS:
+${waivers.length ? waivers.slice(0,10).join('\n') : 'No significant pickups'}
+
+CURRENT STANDINGS (after Week ${recapWeek}):
+${standings}
+
+WEEK ${recapWeek+1} UPCOMING MATCHUPS:
+${upcoming.join('\n')||'Not available'}
+
+${notes ? 'ADDITIONAL CONTEXT FROM COMMISSIONER:\n'+notes : ''}
+
+Write a complete, funny, well-formatted HTML email newsletter. Include:
+1. A catchy headline for the week
+2. A quick-hit summary of the craziest result
+3. Full matchup recaps with jokes and analysis for each game
+4. Trade and waiver wire reactions
+5. Power rankings (your own assessment, not just standings)
+6. Looking ahead to next week's matchups with predictions
+7. A weekly "award" section (Biggest Winner, Worst Loss, Best Pickup, etc.)
+
+IMPORTANT: Return ONLY valid HTML. Use inline CSS only (no <style> tags, no external CSS — email clients strip them). Use a clean, modern email layout. Background #ffffff, font Arial/sans-serif, max-width 600px centered. Use a dark header bar (#1a1a2e) with white text for the newsletter name. Use colored sections — green for winners, light red for losers. Make it look like a real newsletter someone would enjoy reading.`;
+}
+
+// ── GENERATE NEWSLETTER ───────────────────────────────────────────────────────
+async function generateNewsletter() {
+  const prompt = buildNewsletterContext();
+  const season = v('cfg-s') || String(new Date().getFullYear());
+
+  try {
+    // Use web search for current player news and injury info
+    let messages = [{ role:'user', content:`${prompt}\n\nBefore writing, search for: current ${season} NFL Week ${D.recapWeek} injury news, notable player performances, and any relevant football news that would make the newsletter more accurate and timely.` }];
+    let finalHTML = '';
+    let iterations = 0;
+
+    const runTurn = async () => {
+      iterations++;
+      if (iterations > 6) return;
+
+      const resp = await fetch(ANTHROPIC_URL, {
+        method:'POST', headers: apiHeaders(),
+        body: JSON.stringify({
+          model: 'claude-sonnet-4-20250514',
+          max_tokens: 4000,
+          system: 'You are a witty, knowledgeable fantasy football newsletter writer. You always return complete, valid HTML emails with inline CSS only. Never use markdown, never use code blocks — just return the raw HTML.',
+          tools: [WEB_SEARCH_TOOL],
+          messages
+        })
+      });
+      if (!resp.ok) { const e=await resp.text(); throw new Error(`AI error ${resp.status}: ${e.slice(0,200)}`); }
+      const data = await resp.json();
+      const content = data.content || [];
+      const textBlocks = content.filter(b=>b.type==='text').map(b=>b.text).join('');
+      const toolUses = content.filter(b=>b.type==='tool_use');
+
+      if (data.stop_reason==='end_turn' || toolUses.length===0) {
+        finalHTML = textBlocks;
+        return;
+      }
+
+      const queries = toolUses.map(b=>b.input?.query).filter(Boolean);
+      if (queries.length) setStatus(`Searching: "${queries.join('", "')}"`);
+
+      messages.push({role:'assistant', content});
+      messages.push({role:'user', content: toolUses.map(b=>({
+        type:'tool_result', tool_use_id:b.id,
+        content: b.input ? JSON.stringify(b.input) : ''
+      }))});
+      await runTurn();
+    };
+
+    await runTurn();
+
+    // Clean up any markdown code fences Claude might have added
+    finalHTML = finalHTML
+      .replace(/^```html\s*/i,'').replace(/^```\s*/,'').replace(/```\s*$/,'').trim();
+
+    if (!finalHTML || !finalHTML.includes('<')) {
+      throw new Error('AI did not return valid HTML. Try regenerating.');
+    }
+
+    generatedHTML = finalHTML;
+    showPreview(finalHTML);
+    setStatus(`Week ${D.recapWeek} newsletter generated! Preview below.`, 'ok');
+
+  } catch(e) {
+    setStatus('Error generating newsletter: '+e.message, 'err');
+    console.error(e);
+  }
+}
+
+function showPreview(html) {
+  document.getElementById('preview-section').style.display = 'block';
+  updatePreview(html);
+  document.getElementById('html-editor').value = html;
+  document.getElementById('preview-section').scrollIntoView({behavior:'smooth'});
+}
+
+function updatePreview(html) {
+  const frame = document.getElementById('preview-frame');
+  const doc = frame.contentDocument || frame.contentWindow.document;
+  doc.open(); doc.write(html); doc.close();
+  // Auto-resize
+  setTimeout(()=>{ frame.style.height = (doc.body?.scrollHeight||600)+'px'; },200);
+}
+
+function toggleEdit() {
+  const ea = document.getElementById('edit-area');
+  ea.style.display = ea.style.display==='none'?'block':'none';
+}
+
+async function regenerate() {
+  if (!confirm('Regenerate the newsletter? This will replace the current draft.')) return;
+  document.getElementById('preview-section').style.display = 'none';
+  setStatus('Regenerating newsletter…');
+  await generateNewsletter();
+}
+
+// ── SEND ──────────────────────────────────────────────────────────────────────
+async function startSend() {
+  const recipients = getRecipients();
+  if (!recipients.length) { alert('Add at least one recipient with an email address.'); return; }
+
+  const pubKey = v('ej-pubkey'), svcId = v('ej-service'), tplId = v('ej-template');
+  if (!pubKey||!svcId||!tplId) { alert('Fill in your EmailJS Public Key, Service ID, and Template ID first.'); return; }
+
+  if (!confirm(`Send newsletter to ${recipients.length} recipient${recipients.length>1?'s':''}?`)) return;
+
+  // Init EmailJS
+  emailjs.init({ publicKey: pubKey });
+
+  const htmlToSend = document.getElementById('html-editor').value || generatedHTML;
+  const leagueName = v('nl-league-name') || D.league?.name || 'Fantasy League';
+  const subject = `${v('nl-name')||'The Gridiron Gazette'} — Week ${D.recapWeek} Recap | ${leagueName}`;
+  const fromName = v('ej-from') || 'Fantasy Commissioner';
+
+  const sendProgress = document.getElementById('send-progress');
+  sendProgress.style.display = 'block';
+  sendProgress.scrollIntoView({behavior:'smooth'});
+
+  const rowsEl = document.getElementById('send-rows');
+  rowsEl.innerHTML = '';
+
+  // Create progress rows
+  const rows = {};
+  recipients.forEach(r => {
+    const row = document.createElement('div');
+    row.className = 'progress-row';
+    row.innerHTML = `<div class="progress-icon" id="icon-${r.email.replace('@','_')}"><div class="sending-spinner"></div></div><div style="flex:1">${r.name||r.email} <span style="color:var(--mt);font-size:11px">${r.email}</span></div><div id="result-${r.email.replace('@','_')}" style="font-size:12px;color:var(--mt)">Sending…</div>`;
+    rowsEl.appendChild(row);
+    rows[r.email] = row;
+  });
+
+  // Send one at a time to avoid rate limits
+  let sent=0, failed=0;
+  for (const r of recipients) {
+    const safeId = r.email.replace('@','_').replace(/\./g,'_');
+    const iconEl = document.getElementById('icon-'+safeId);
+    const resultEl = document.getElementById('result-'+safeId);
+    try {
+      await emailjs.send(svcId, tplId, {
+        to_email: r.email,
+        to_name: r.name||r.email,
+        from_name: fromName,
+        subject: subject,
+        html_content: htmlToSend,
+        week: String(D.recapWeek),
+        league_name: leagueName
+      });
+      iconEl.innerHTML = '✅';
+      resultEl.textContent = 'Sent!';
+      resultEl.style.color = 'var(--gn)';
+      sent++;
+    } catch(e) {
+      iconEl.innerHTML = '❌';
+      resultEl.textContent = 'Failed: '+((e.text||e.message||'').slice(0,60));
+      resultEl.style.color = 'var(--rd)';
+      failed++;
+      console.error('EmailJS error for', r.email, e);
+    }
+    await new Promise(res=>setTimeout(res,300)); // small delay between sends
+  }
+
+  setStatus(`Done! ${sent} sent, ${failed} failed.`, failed===0?'ok':'err');
+}
+
+// ── WEEK SELECTOR ─────────────────────────────────────────────────────────────
+async function populateWeeks() {
+  const l = v('cfg-l');
+  if (!l) return;
+  try {
+    const league = await sGet('/league/'+l);
+    const w = league.settings?.leg || 1;
+    const sel = document.getElementById('cfg-week');
+    sel.innerHTML = `<option value="auto">Auto-detect (Week ${Math.max(w-1,1)})</option>`;
+    for (let wk=Math.max(w-1,1); wk>=1; wk--) {
+      sel.innerHTML += `<option value="${wk}">Week ${wk}</option>`;
+    }
+  } catch(e){}
+}
+
+document.getElementById('cfg-l').addEventListener('blur', populateWeeks);
+
+// ── BOOT ──────────────────────────────────────────────────────────────────────
+loadCfg();
+</script>
+</body>
+</html>
