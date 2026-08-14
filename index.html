@@ -928,7 +928,7 @@ async function aiStream(system, userMsg, el, maxTok=1000) {
   el.innerHTML = '<span class="dim">Thinking…</span>';
   const resp = await fetch(ANTHROPIC_URL, {
     method:'POST', headers:apiHeaders(),
-    body: JSON.stringify({ model:'claude-sonnet-4-20250514', max_tokens:maxTok, stream:true, system, messages:[{role:'user',content:userMsg}] })
+    body: JSON.stringify({ model:'claude-sonnet-4-6', max_tokens:maxTok, stream:true, system, messages:[{role:'user',content:userMsg}] })
   });
   if (!resp.ok) { const e=await resp.text(); throw new Error(`AI error ${resp.status}: ${e.slice(0,200)}`); }
   let full='';
@@ -960,7 +960,7 @@ async function aiWithSearch(system, userMsg, el, maxTok=1500) {
 
     const resp = await fetch(ANTHROPIC_URL, {
       method:'POST', headers:apiHeaders(),
-      body: JSON.stringify({ model:'claude-sonnet-4-20250514', max_tokens:maxTok, system, tools:[WEB_SEARCH_TOOL], messages })
+      body: JSON.stringify({ model:'claude-sonnet-4-6', max_tokens:maxTok, system, tools:[WEB_SEARCH_TOOL], messages })
     });
     if (!resp.ok) { const e=await resp.text(); throw new Error(`AI error ${resp.status}: ${e.slice(0,200)}`); }
     const data = await resp.json();
@@ -1068,7 +1068,7 @@ async function analyzePending(idx, giveIds, getIds) {
     const ah={'Content-Type':'application/json'}; if(cfg.k){ah['x-api-key']=cfg.k;ah['anthropic-version']='2023-06-01';ah['anthropic-dangerous-direct-browser-access']='true';}
     const resp=await fetch('https://api.anthropic.com/v1/messages',{
       method:'POST', headers:ah,
-      body:JSON.stringify({ model:'claude-sonnet-4-20250514', max_tokens:500, stream:true,
+      body:JSON.stringify({ model:'claude-sonnet-4-6', max_tokens:500, stream:true,
         system:'Fantasy football trade analyst. Be concise (3-4 sentences). End with SCORE:[0-100].',
         messages:[{role:'user',content:`${ctx()}\n\nPending trade offer received:\nI GIVE: ${give}\nI GET: ${get}\nShould I accept, counter, or decline? SCORE:[0-100]`}]})
     });
@@ -1104,7 +1104,7 @@ async function doChat() {
     const ch={'Content-Type':'application/json'}; if(cfg.k){ch['x-api-key']=cfg.k;ch['anthropic-version']='2023-06-01';ch['anthropic-dangerous-direct-browser-access']='true';}
     const resp=await fetch('https://api.anthropic.com/v1/messages',{
       method:'POST', headers:ch,
-      body:JSON.stringify({ model:'claude-sonnet-4-20250514', max_tokens:700, stream:true,
+      body:JSON.stringify({ model:'claude-sonnet-4-6', max_tokens:700, stream:true,
         tools:[WEB_SEARCH_TOOL],
         system:SYS()+'\n'+ctx(), messages:chatHist })
     });
