@@ -1068,7 +1068,7 @@ async function analyzePending(idx, giveIds, getIds) {
     const ah={'Content-Type':'application/json'}; if(cfg.k){ah['x-api-key']=cfg.k;ah['anthropic-version']='2023-06-01';ah['anthropic-dangerous-direct-browser-access']='true';}
     const resp=await fetch('https://api.anthropic.com/v1/messages',{
       method:'POST', headers:ah,
-      body:JSON.stringify({ model:'claude-sonnet-4-6', max_tokens:3000, stream:true,
+      body:JSON.stringify({ model:'claude-sonnet-4-6', max_tokens:30000, stream:true,
         system:'Fantasy football trade analyst. Be concise (3-4 sentences). End with SCORE:[0-100].',
         messages:[{role:'user',content:`${ctx()}\n\nPending trade offer received:\nI GIVE: ${give}\nI GET: ${get}\nShould I accept, counter, or decline? SCORE:[0-100]`}]})
     });
@@ -1104,7 +1104,7 @@ async function doChat() {
     const ch={'Content-Type':'application/json'}; if(cfg.k){ch['x-api-key']=cfg.k;ch['anthropic-version']='2023-06-01';ch['anthropic-dangerous-direct-browser-access']='true';}
     const resp=await fetch('https://api.anthropic.com/v1/messages',{
       method:'POST', headers:ch,
-      body:JSON.stringify({ model:'claude-sonnet-4-6', max_tokens:3000, stream:true,
+      body:JSON.stringify({ model:'claude-sonnet-4-6', max_tokens:30000, stream:true,
         tools:[WEB_SEARCH_TOOL],
         system:SYS()+'\n'+ctx(), messages:chatHist })
     });
